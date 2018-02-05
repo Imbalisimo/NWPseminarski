@@ -8,12 +8,10 @@
 class grid {
 public:
 	int numberOfNodes, x, y;
-	std::map<POINT, node*> nodes;
-	std::map<POINT, node*> unoccupiedNodes;
-	std::map<POINT, node*>::iterator iter;
+	std::map<POINT, int> unoccupiedNodes;
+	std::map<POINT, int>::iterator iter;
 
 	grid();
 	void set_size(int x, int y);
-	node* moveIter(int spaces);
-
+	POINT moveIter(int spaces);
 };

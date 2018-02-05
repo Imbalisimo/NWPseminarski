@@ -41,7 +41,6 @@ CChildView::CChildView() {
 	int appleNode = rand() % map.unoccupiedNodes.size();
 	apple = map.moveIter(appleNode);
 
-	apple->apple = 1;
 	previousKey = 0;
 }
 
@@ -90,14 +89,14 @@ void CChildView::OnPaint()
 
 	CRect rect;
 
-	for(node* var : snaky.occupied)
+	for(POINT var : snaky.occupied)
 	{
-		dc.Rectangle(generate_rect(var->coordinates, coefficient_x, coefficient_y));
+		dc.Rectangle(generate_rect(var, coefficient_x, coefficient_y));
 		dc.FillRect(rect, &brush);
 	}
 
 	brush.CreateSolidBrush(RGB(255, 0, 0));
-	dc.Ellipse(generate_rect(apple->coordinates, coefficient_x, coefficient_y));
+	dc.Ellipse(generate_rect(apple, coefficient_x, coefficient_y));
 
 	if (wall.countdown < 4)
 	{
@@ -106,10 +105,10 @@ void CChildView::OnPaint()
 		else
 			brush.CreateSolidBrush(RGB(128, 64, 0));
 
-		for (std::map<POINT, node*>::iterator iter = wall.occupied.begin();iter != wall.occupied.end();++iter)
+		for (std::list<POINT>::iterator iter = wall.occupied.begin();iter != wall.occupied.end();++iter)
 		{
-			dc.Rectangle(generate_rect(iter->first, coefficient_x, coefficient_y));
-				dc.FillRect(generate_rect(iter->first, coefficient_x, coefficient_y), &brush);
+			dc.Rectangle(generate_rect(*iter, coefficient_x, coefficient_y));
+				dc.FillRect(generate_rect(*iter, coefficient_x, coefficient_y), &brush);
 		}
 	}
 		
@@ -122,60 +121,52 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	//VJEROJATNO ZVATI IZ WM_TIMER ALI PITATI PROFESORA I KAKO SE KORISTI
 	int success = 1;
-	node *n = snaky.occupied.front();
-	POINT searchingPoint=n->coordinates;
+	POINT p = snaky.occupied.front();
+	POINT searchingPoint=p;
 	switch (nChar)
 	{
 	case VK_UP:
-		if (n->coordinates.y <= 0)
+		if (p.y <= 0)
 			if (previousKey != VK_DOWN)
 				--searchingPoint.y;
-		n = map.nodes[searchingPoint];
 		break;
 	case VK_DOWN:
-		if (n->coordinates.y >= map.y)
+		if (p.y >= map.y)
 			if (previousKey != VK_UP)
 				++searchingPoint.y;
-		n = map.nodes[searchingPoint];
 		break;
 	case VK_LEFT:
-		if (n->coordinates.x <= 0)
+		if (p.x <= 0)
 			if (previousKey != VK_RIGHT)
 				--searchingPoint.x;
-		n = map.nodes[searchingPoint];
 		break;
 	case VK_RIGHT:
-		if (n->coordinates.x >= map.x)
+		if (p.x >= map.x)
 			if (previousKey != VK_LEFT)
 				searchingPoint.x;
-		n = map.nodes[searchingPoint];
 		break;
 	}
+	p = searchingPoint;
 
 	previousKey = nChar;
 
-	if (n->snake_wall == 1)
-		success = 0;
-	n->snake_wall = 1;
+	//DA LI JE UDARILA U ZID ILI SEBE (VARIJABLA P)
 
-	if (n->apple == 0) {   //da li je pokupila jabuku
-		snaky.occupied.back()->snake_wall = 0;
+	if (p == apple) {   //da li je pokupila jabuku
 		snaky.occupied.pop_back();
-		map.unoccupiedNodes[n->coordinates] = n;
+		map.unoccupiedNodes[p] = p.y*map.x + p.x;
 	}
 	else {
-		n->apple = 0;
 		++snaky.length;
 	}
 
-	snaky.occupied.push_front(n);
-	map.unoccupiedNodes.erase(n->coordinates);
+	snaky.occupied.push_front(p);
+	map.unoccupiedNodes.erase(p);
 
-	if (apple->apple == 0)
+	if (p != apple)
 	{
 		int appleNode = rand() % map.unoccupiedNodes.size();
 		apple = map.moveIter(appleNode); //MORA POSTOJATI BOLJI NACIN
-		apple->apple = 1;
 		Invalidate();
 	}
 
@@ -183,9 +174,9 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (wall.countdown > 4)
 	{
 		if (wall.countdown == 3 && map.unoccupiedNodes.size() > 15)
-			wall.RdyToappear(map);
+			wall.RdyToappear(&map, apple);
 		if (wall.countdown == 0)
-			wall.onAppearance(snaky);
+			wall.onAppearance(&snaky);
 		for (int i = 0; i < wall.occupied.size(); ++i)
 			Invalidate();
 	}

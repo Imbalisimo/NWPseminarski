@@ -7,7 +7,7 @@
 class snake {
 public:
 	int length;
-	std::list<node*> occupied;
+	std::list<POINT> occupied;
 	snake();
 	void set(grid *mreza);
 };

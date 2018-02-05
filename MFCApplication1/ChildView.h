@@ -18,7 +18,7 @@ public:
 	CChildView();
 	RECT window_size;
 	POINT grid_size;
-	node *apple;
+	POINT apple;
 	UINT previousKey;
 	grid map;
 	snake snaky;

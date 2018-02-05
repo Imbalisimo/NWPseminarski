@@ -5,80 +5,7 @@
 #include "node.h"
 #include "snake.h"
 #include "appearingWall.h"
-/*
-class appearingWall {
-public:
-	int length;
-	int countdown;
-	int countReset;
-	std::map<int, node*> occupied;
-	appearingWall() {}
-	appearingWall(int len, int count) : length(len), countReset(count) {
-		countdown = countReset;
-	}
-	void RdyToappear(grid mreza) {
-		node* n;
-		do {
-			int wallStartNode = rand() % mreza.unoccupiedNodes.size();
-			n = mreza.moveIter(wallStartNode);
-		} while (n->apple == 1);
-		occupied[0] = n;
 
-		int wallDirectionSpread = rand() % 4;
-		for (int i = 1;i < length; ++i)
-		{
-			int wallDirectionSpread = rand() % 4;
-			switch (wallDirectionSpread)  //0-UP, 1-RIGHT, 2-DOWN, 3-LEFT
-			{
-			case 0:
-				if (n->up != NULL)
-				{
-					n->about_to_appear = 1;
-					n = n->up;
-					break;
-				}
-			case 1:
-				if (n->right != NULL)
-				{
-					n->about_to_appear = 1;
-					n = n->right;
-					break;
-				}
-			case 2:
-				if (n->down != NULL)
-				{
-					n->about_to_appear = 1;
-					n = n->down;
-					break;
-				}
-			case 3:
-				if (n->left != NULL)
-				{
-					n->about_to_appear = 1;
-					n = n->left;
-					break;
-				}
-			default:
-				break;   //ako bude u nekom uzem prostoru velika vjerojatnost da ce zid biti kraci i da se prostire lijevo
-						 //(ali nema veze zbog brzine)
-			}
-			occupied[i] = n;
-		}
-	}
-	void onAppearance(snake zmija)
-	{
-		for (int i = 0;i < occupied.size();++i)
-			if (occupied[i]->snake_wall == 0)
-				occupied[i]->snake_wall = 1, occupied[i]->about_to_appear = 0;
-			else
-				occupied[i]->about_to_appear = 0, occupied.erase(i);
-	}
-
-	void wallClear() {
-		occupied.empty();
-		countdown = countReset;
-	}
-};*/
 
 appearingWall::appearingWall() {}
 
@@ -88,15 +15,15 @@ void appearingWall::set(int len, int count) {
 	countdown = countReset;
 }
 
-void appearingWall::RdyToappear(grid map) {
-	node* n;
-	POINT maps;
+void appearingWall::RdyToappear(grid *map, POINT apple) {
+	POINT p;
+	POINT map_s;
 	do {
-		int wallStartNode = rand() % map.unoccupiedNodes.size();
-		n = map.moveIter(wallStartNode);
-	} while (n->apple == 1);
-	occupied[n->coordinates] = n;
-	maps = n->coordinates;
+		int wallStartNode = rand() % map->unoccupiedNodes.size();
+		p = map->moveIter(wallStartNode);
+	} while (p == apple);
+	occupied.push_back(p);
+	map_s = p;
 
 	int wallDirectionSpread = rand() % 4;
 	for (int i = 1;i < length; ++i)
@@ -105,62 +32,48 @@ void appearingWall::RdyToappear(grid map) {
 		switch (wallDirectionSpread)  //0-UP, 1-RIGHT, 2-DOWN, 3-LEFT
 		{
 		case 0:
-			--maps.y;
-			if (maps.y > 0)
-			{
-				std::map<POINT, node*>::iterator iter = map.nodes.find(maps);
-				n = iter->second;
-				n->about_to_appear = 1;
+			--map_s.y;
+			if (map_s.y > 0)
 				break;
-			}
-			++maps.y;
+			++map_s.y;
 		case 1:
-			++maps.x;
-			if (maps.x < map.x)
-			{
-				std::map<POINT, node*>::iterator iter = map.nodes.find(maps);
-				n = iter->second;
-				n->about_to_appear = 1;
+			++map_s.x;
+			if (map_s.x < map->x)
 				break;
-			}
-			--maps.x;
+			--map_s.x;
 		case 2:
-			++maps.y;
-			if (n->coordinates.y < map.y)
-			{
-				std::map<POINT, node*>::iterator iter = map.nodes.find(maps);
-				n = iter->second;
-				n->about_to_appear = 1;
+			++map_s.y;
+			if (map_s.y < map->y)
 				break;
-			}
-			--maps.y;
+			--map_s.y;
 		case 3:
-			--maps.x;
-			if (n->coordinates.x > 0)
-			{
-				std::map<POINT, node*>::iterator iter = map.nodes.find(maps);
-				n = iter->second;
-				n->about_to_appear = 1;
+			--map_s.x;
+			if (map_s.x > 0)
 				break;
-			}
-			++maps.x;
+			++map_s.x;
 		default:
 			break;   //ako bude u nekom uzem prostoru velika vjerojatnost da ce zid biti kraci i da se prostire lijevo
 					 //(ali nema veze zbog brzine)
 		}
-		occupied[n->coordinates] = n;
+		occupied.push_back(p);
 	}
 }
 
-void appearingWall::onAppearance(snake zmija)
+void appearingWall::onAppearance(snake *snaky)
 {
-	for (std::map<POINT, node*>::iterator iter = occupied.begin();iter != occupied.end();++iter)
+	for (std::list<POINT>::iterator wall_iter = initialize.begin();wall_iter != initialize.end();++wall_iter)
 	{
-		if (iter->second->snake_wall == 0)
-			iter->second->snake_wall = 1;
+		int flag = 1;
+		for (std::list<POINT>::iterator snak_iter = snaky->occupied.begin();snak_iter != snaky->occupied.end();++snak_iter)
+		{
+			if (*wall_iter == *snak_iter)
+				flag = 0;
+		}
+		if (flag = 1)
+			occupied.push_back(*wall_iter);
 		else
-			occupied.erase(iter->first);
-		iter->second->about_to_appear = 0;
+			flag = 1;
+		initialize.remove(*wall_iter);
 	}
 }
 
