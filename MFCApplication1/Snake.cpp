@@ -17,9 +17,9 @@ void snake::set(grid *map)
 
 	for (int i = 0;i < 4;++i)
 	{
+		++startingPoints.x;
 		occupied.push_back(startingPoints);
 		map->unoccupiedNodes.erase(startingPoints);
-		++startingPoints.x;
 	}
 
 	++startingPoints.y;

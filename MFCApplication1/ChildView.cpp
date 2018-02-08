@@ -38,8 +38,8 @@ CChildView::CChildView() {
 	map.set_size(x, y);
 	snaky.set(&map);
 	wall.set(wall_size, wall_coundown);
-	int appleNode = rand() % map.unoccupiedNodes.size();
-	apple = map.moveIter(appleNode);
+	int applePoint = rand() % map.unoccupiedNodes.size();
+	apple = map.moveIter(applePoint);
 
 	previousKey = 0;
 }
@@ -95,10 +95,10 @@ void CChildView::OnPaint()
 		dc.FillRect(rect, &brush);
 	}
 
-	brush.CreateSolidBrush(RGB(255, 0, 0));
+	//brush.CreateSolidBrush(RGB(255, 0, 0));
 	dc.Ellipse(generate_rect(apple, coefficient_x, coefficient_y));
 
-	if (wall.countdown < 4)
+	/*if (wall.countdown < 4)
 	{
 		if (wall.countdown < 1)
 			brush.CreateSolidBrush(RGB(255, 166, 77));
@@ -110,7 +110,7 @@ void CChildView::OnPaint()
 			dc.Rectangle(generate_rect(*iter, coefficient_x, coefficient_y));
 				dc.FillRect(generate_rect(*iter, coefficient_x, coefficient_y), &brush);
 		}
-	}
+	}*/
 		
 	// Do not call CWnd::OnPaint() for painting messages
 }
@@ -127,51 +127,60 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 	case VK_UP:
 		if (p.y <= 0)
+			success = 0;
+		else
 			if (previousKey != VK_DOWN)
 				--searchingPoint.y;
 		break;
 	case VK_DOWN:
 		if (p.y >= map.y)
+			success = 0;
+		else
 			if (previousKey != VK_UP)
 				++searchingPoint.y;
 		break;
 	case VK_LEFT:
 		if (p.x <= 0)
+			success = 0;
+		else
 			if (previousKey != VK_RIGHT)
 				--searchingPoint.x;
 		break;
 	case VK_RIGHT:
 		if (p.x >= map.x)
+			success = 0;
+		else
 			if (previousKey != VK_LEFT)
-				searchingPoint.x;
+				++searchingPoint.x;
 		break;
 	}
 	p = searchingPoint;
 
+
 	previousKey = nChar;
 
 	//DA LI JE UDARILA U ZID ILI SEBE (VARIJABLA P)
+	/*if(success==0)
+		????????????????
+	*/
 
-	if (p == apple) {   //da li je pokupila jabuku
-		snaky.occupied.pop_back();
+	snaky.occupied.push_front(p);
+
+	map.unoccupiedNodes.erase(p);
+	if (p != apple) {   //da li je pokupila jabuku
+		p = snaky.occupied.back();
 		map.unoccupiedNodes[p] = p.y*map.x + p.x;
+		snaky.occupied.pop_back();
 	}
 	else {
 		++snaky.length;
-	}
-
-	snaky.occupied.push_front(p);
-	map.unoccupiedNodes.erase(p);
-
-	if (p != apple)
-	{
 		int appleNode = rand() % map.unoccupiedNodes.size();
 		apple = map.moveIter(appleNode); //MORA POSTOJATI BOLJI NACIN
 		Invalidate();
 	}
 
 	//OVO IDE NAKON STA SE OSNOVNO NAPRAVI (DINAMICNI ZIDOVI)
-	if (wall.countdown > 4)
+	/*if (wall.countdown > 4)
 	{
 		if (wall.countdown == 3 && map.unoccupiedNodes.size() > 15)
 			wall.RdyToappear(&map, apple);
@@ -182,9 +191,9 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (wall.countdown == -5)
 		wall.wallClear();
-	--wall.countdown;
+	--wall.countdown;*/
 
-	Sleep(500);
+	//Sleep(500);
 	Invalidate();
 	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
 }
