@@ -72,7 +72,7 @@ void appearingWall::onAppearance(snake *snaky, grid* map, POINT apple)
 		if (flag == 1) 
 		{
 			built.push_back(wall_s);
-
+			map->unoccupiedNodes.erase(wall_s);
 		}
 	}
 	initialize.clear();

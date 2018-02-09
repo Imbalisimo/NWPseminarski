@@ -214,18 +214,18 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 		if (var == searchingPoint)
 			success = 0;
 
+	snaky.occupied.push_front(searchingPoint);
+
+	map.unoccupiedNodes.erase(searchingPoint);
+
 	if (success == 0)
 	{
 		KillTimer(timer);
 		SendMessage(WM_DESTROY);
 	}
-	snaky.occupied.push_front(searchingPoint);
-
-	map.unoccupiedNodes.erase(searchingPoint);
 
 	//OCCUPY THEN MOVE///////////////////
 	/*if (searchingPoint != apple) {
-		POINT P;
 		searchingPoint = snaky.occupied.back();
 		map.unoccupiedNodes[searchingPoint] = searchingPoint.y*map.x + searchingPoint.x;
 		snaky.occupied.pop_back();
@@ -280,6 +280,8 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	snaky.set(&map);
 	wall.set(wall_size, wall_coundown);
 	int applePoint = rand() % map.unoccupiedNodes.size();
+	apple.x = 0;
+	apple.y = 0;
 	apple = map.moveIter(applePoint);
 
 	previousDirection = 0;
