@@ -22,10 +22,9 @@ void appearingWall::RdyToappear(grid *map, POINT apple) {
 		int wallStartNode = rand() % map->unoccupiedNodes.size();
 		p = map->moveIter(wallStartNode);
 	} while (p == apple);
-	occupied.push_back(p);
+	initialize.push_back(p);
 	map_s = p;
 
-	int wallDirectionSpread = rand() % 4;
 	for (int i = 1;i < length; ++i)
 	{
 		int wallDirectionSpread = rand() % 4;
@@ -33,51 +32,56 @@ void appearingWall::RdyToappear(grid *map, POINT apple) {
 		{
 		case 0:
 			--map_s.y;
-			if (map_s.y > 0)
+			if (map_s.y >= 0)
 				break;
 			++map_s.y;
 		case 1:
 			++map_s.x;
-			if (map_s.x < map->x)
+			if (map_s.x <= map->x)
 				break;
 			--map_s.x;
 		case 2:
 			++map_s.y;
-			if (map_s.y < map->y)
+			if (map_s.y <= map->y)
 				break;
 			--map_s.y;
 		case 3:
 			--map_s.x;
-			if (map_s.x > 0)
+			if (map_s.x >= 0)
 				break;
 			++map_s.x;
 		default:
 			break;   //ako bude u nekom uzem prostoru velika vjerojatnost da ce zid biti kraci i da se prostire lijevo
 					 //(ali nema veze zbog brzine)
 		}
-		occupied.push_back(p);
+		initialize.push_back(map_s);
 	}
 }
 
-void appearingWall::onAppearance(snake *snaky)
+void appearingWall::onAppearance(snake *snaky, grid* map, POINT apple)
 {
-	for (std::list<POINT>::iterator wall_iter = initialize.begin();wall_iter != initialize.end();++wall_iter)
+	for (POINT wall_s : initialize)
 	{
 		int flag = 1;
-		for (std::list<POINT>::iterator snak_iter = snaky->occupied.begin();snak_iter != snaky->occupied.end();++snak_iter)
+		for (POINT snake_s : snaky->occupied)
 		{
-			if (*wall_iter == *snak_iter)
+			if (wall_s == snake_s)
 				flag = 0;
 		}
-		if (flag = 1)
-			occupied.push_back(*wall_iter);
-		else
-			flag = 1;
-		initialize.remove(*wall_iter);
+		if (wall_s == apple)
+			flag = 0;
+		if (flag == 1) 
+		{
+			built.push_back(wall_s);
+
+		}
 	}
+	initialize.clear();
 }
 
-void appearingWall::wallClear() {
-	occupied.empty();
+void appearingWall::wallClear(grid* map) {
+	for (POINT var : built)
+		map->unoccupiedNodes[var] = var.y*map->x + var.x;
+	built.clear();
 	countdown = countReset;
 }
