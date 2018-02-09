@@ -41,17 +41,20 @@ CChildView::CChildView() {
 	int applePoint = rand() % map.unoccupiedNodes.size();
 	apple = map.moveIter(applePoint);
 
-	previousKey = 0;
+	previousDirection = 0;
 }
 
 CChildView::~CChildView()
 {
+	KillTimer(timer);
 }
 
 
 BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_PAINT()
 	ON_WM_KEYDOWN()
+	ON_WM_TIMER()
+	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 
@@ -80,9 +83,12 @@ void CChildView::OnPaint()
 	dc.SetViewportExt(window_size.right, window_size.bottom);
 	dc.SetWindowExt(xpix, ypix);
 
-	CBrush brush;
-	brush.CreateSolidBrush(RGB(0, 0, 0));
-	dc.SelectObject(brush);
+	CBrush innerBrush;
+	CPen pen;
+	pen.CreatePen(1, 1, RGB(255, 255, 255));
+	dc.SelectObject(pen);
+	innerBrush.CreateSolidBrush(RGB(0, 0, 0));
+	dc.SelectObject(innerBrush);
 
 	int coefficient_x=xpix/map.x;
 	int coefficient_y=ypix/map.y;
@@ -92,10 +98,12 @@ void CChildView::OnPaint()
 	for(POINT var : snaky.occupied)
 	{
 		dc.Rectangle(generate_rect(var, coefficient_x, coefficient_y));
-		dc.FillRect(rect, &brush);
+		dc.FillRect(rect, &innerBrush);
 	}
 
-	//brush.CreateSolidBrush(RGB(255, 0, 0));
+	CBrush apple_s;
+	apple_s.CreateSolidBrush(RGB(255, 0, 0));
+	dc.SelectObject(apple_s);
 	dc.Ellipse(generate_rect(apple, coefficient_x, coefficient_y));
 
 	/*if (wall.countdown < 4)
@@ -108,7 +116,7 @@ void CChildView::OnPaint()
 		for (std::list<POINT>::iterator iter = wall.occupied.begin();iter != wall.occupied.end();++iter)
 		{
 			dc.Rectangle(generate_rect(*iter, coefficient_x, coefficient_y));
-				dc.FillRect(generate_rect(*iter, coefficient_x, coefficient_y), &brush);
+			dc.FillRect(generate_rect(*iter, coefficient_x, coefficient_y), &brush);
 		}
 	}*/
 		
@@ -119,49 +127,59 @@ void CChildView::OnPaint()
 
 void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
+	currentKey = nChar;
+
+	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CChildView::OnTimer(UINT_PTR nIDEvent)
+{
 	//VJEROJATNO ZVATI IZ WM_TIMER ALI PITATI PROFESORA I KAKO SE KORISTI
 	int success = 1;
 	POINT p = snaky.occupied.front();
-	POINT searchingPoint=p;
-	switch (nChar)
+	POINT searchingPoint = p;
+	if (previousDirection + 2 == currentKey&&previousDirection - 2 == currentKey)
+		currentKey = previousDirection;
+	switch (currentKey)
 	{
 	case VK_UP:
 		if (p.y <= 0)
 			success = 0;
 		else
-			if (previousKey != VK_DOWN)
+			if (previousDirection != VK_DOWN)
 				--searchingPoint.y;
 		break;
 	case VK_DOWN:
 		if (p.y >= map.y)
 			success = 0;
 		else
-			if (previousKey != VK_UP)
+			if (previousDirection != VK_UP)
 				++searchingPoint.y;
 		break;
 	case VK_LEFT:
 		if (p.x <= 0)
 			success = 0;
 		else
-			if (previousKey != VK_RIGHT)
+			if (previousDirection != VK_RIGHT)
 				--searchingPoint.x;
 		break;
 	case VK_RIGHT:
 		if (p.x >= map.x)
 			success = 0;
 		else
-			if (previousKey != VK_LEFT)
+			if (previousDirection != VK_LEFT)
 				++searchingPoint.x;
 		break;
 	}
 	p = searchingPoint;
 
-
-	previousKey = nChar;
+	if(previousDirection=!currentKey)
+		previousDirection = currentKey;
 
 	//DA LI JE UDARILA U ZID ILI SEBE (VARIJABLA P)
 	/*if(success==0)
-		????????????????
+	????????????????
 	*/
 
 	snaky.occupied.push_front(p);
@@ -182,18 +200,30 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	//OVO IDE NAKON STA SE OSNOVNO NAPRAVI (DINAMICNI ZIDOVI)
 	/*if (wall.countdown > 4)
 	{
-		if (wall.countdown == 3 && map.unoccupiedNodes.size() > 15)
-			wall.RdyToappear(&map, apple);
-		if (wall.countdown == 0)
-			wall.onAppearance(&snaky);
-		for (int i = 0; i < wall.occupied.size(); ++i)
-			Invalidate();
+	if (wall.countdown == 3 && map.unoccupiedNodes.size() > 15)
+	wall.RdyToappear(&map, apple);
+	if (wall.countdown == 0)
+	wall.onAppearance(&snaky);
+	for (int i = 0; i < wall.occupied.size(); ++i)
+	Invalidate();
 	}
 	if (wall.countdown == -5)
-		wall.wallClear();
+	wall.wallClear();
 	--wall.countdown;*/
 
 	//Sleep(500);
 	Invalidate();
-	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+
+	CWnd::OnTimer(nIDEvent);
+}
+
+
+int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CWnd::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	timer = SetTimer(timer, 500, NULL);
+
+	return 0;
 }

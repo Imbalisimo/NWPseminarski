@@ -19,10 +19,11 @@ public:
 	RECT window_size;
 	POINT grid_size;
 	POINT apple;
-	UINT previousKey;
+	UINT previousDirection, currentKey=VK_LEFT;
 	grid map;
 	snake snaky;
 	appearingWall wall;
+	int timer=1;
 // Attributes
 public:
 
@@ -43,5 +44,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
 
