@@ -45,10 +45,10 @@
     <ClInclude Include="appearingWall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="node.h">
+    <ClInclude Include="POINToperators.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="POINToperators.h">
+    <ClInclude Include="WallOptionsDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,10 +74,10 @@
     <ClCompile Include="appearingWall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="node.cpp">
+    <ClCompile Include="POINToperators.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="POINToperators.cpp">
+    <ClCompile Include="WallOptionsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

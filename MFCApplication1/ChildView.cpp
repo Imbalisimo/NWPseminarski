@@ -9,10 +9,10 @@
 #include <list>
 #include <vector>
 #include <iterator>
-#include "node.h"
 #include "snake.h"
 #include "grid.h"
 #include "appearingWall.h"
+#include "WallOptionsDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -31,12 +31,12 @@ CRect generate_rect(POINT a, int coefficient_x, int coefficient_y)
 
 // CChildView
 
-CChildView::CChildView() {
+CChildView::CChildView() 
+{
 }
 
 CChildView::~CChildView()
 {
-	KillTimer(timer);
 }
 
 
@@ -45,6 +45,7 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_KEYDOWN()
 	ON_WM_TIMER()
 	ON_WM_CREATE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -55,6 +56,7 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if (!CWnd::PreCreateWindow(cs))
 		return FALSE;
+
 
 	cs.dwExStyle |= WS_EX_CLIENTEDGE;
 	cs.style &= ~WS_BORDER;
@@ -74,9 +76,9 @@ void CChildView::OnPaint()
 	dc.SetWindowExt(xpix, ypix);
 
 	int coefficient_x=xpix/map.x;
+	coefficient_x -= coefficient_x / map.x;
 	int coefficient_y=ypix/map.y;
-
-
+	coefficient_y -= coefficient_y / map.y;
 
 	if (wall.countdown < 7)
 	{
@@ -141,64 +143,43 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 void CChildView::OnTimer(UINT_PTR nIDEvent)
 {
 	int success = 1;
-	POINT p = snaky.occupied.front();
-	POINT searchingPoint = p;
+	POINT searchingPoint = snaky.occupied.front();
 	if (previousDirection + 2 == currentKey || previousDirection - 2 == currentKey)
 		currentKey = previousDirection;
 	switch (currentKey)
 	{
 	case VK_UP:
-		if (p.y <= 0)
+		if (searchingPoint.y <= 0)
 			success = 0;
 		else
 			if (previousDirection != VK_DOWN)
 				--searchingPoint.y;
 		break;
 	case VK_DOWN:
-		if (p.y >= map.y)
+		if (searchingPoint.y >= map.y)
 			success = 0;
 		else
 			if (previousDirection != VK_UP)
 				++searchingPoint.y;
 		break;
 	case VK_LEFT:
-		if (p.x <= 0)
+		if (searchingPoint.x <= 0)
 			success = 0;
 		else
 			if (previousDirection != VK_RIGHT)
 				--searchingPoint.x;
 		break;
 	case VK_RIGHT:
-		if (p.x >= map.x)
+		if (searchingPoint.x >= map.x)
 			success = 0;
 		else
 			if (previousDirection != VK_LEFT)
 				++searchingPoint.x;
 		break;
 	}
-	p = searchingPoint;
 
 	if (previousDirection != currentKey) {
 		previousDirection = currentKey;
-	}
-
-	//DA LI JE UDARILA U ZID ILI SEBE (VARIJABLA P)
-	/*if(success==0)
-	????????????????
-	*/
-
-	snaky.occupied.push_front(p);
-
-	map.unoccupiedNodes.erase(p);
-	if (p != apple) {   //da li je pokupila jabuku
-		p = snaky.occupied.back();
-		map.unoccupiedNodes[p] = p.y*map.x + p.x;
-		snaky.occupied.pop_back();
-	}
-	else {
-		++snaky.length;
-		int appleNode = rand() % map.unoccupiedNodes.size();
-		apple = map.moveIter(appleNode); //MORA POSTOJATI BOLJI NACIN
 	}
 
 	if (wall.countdown < 7)
@@ -207,10 +188,54 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 			wall.RdyToappear(&map, apple);
 		if (wall.countdown == 0)
 			wall.onAppearance(&snaky, &map, apple);
-		if (wall.countdown == -6)
+		if (wall.countdown == -7)
 			wall.wallClear(&map);
 	}
 	--wall.countdown;
+
+	//MOVE THEN OCCUPY///////////////
+	if (searchingPoint != apple) {
+		POINT p = snaky.occupied.back();
+		map.unoccupiedNodes[p] = p.y*map.x + p.x;
+		snaky.occupied.pop_back();
+	}
+	else {
+		++snaky.length;
+		int appleNode = rand() % map.unoccupiedNodes.size();
+		apple = map.moveIter(appleNode);
+	}
+	////////////////////////////////
+
+	//game over or not?
+	for (POINT var : snaky.occupied)
+		if (var == searchingPoint)
+			success = 0;
+	for (POINT var : wall.built)
+		if (var == searchingPoint)
+			success = 0;
+
+	if (success == 0)
+	{
+		KillTimer(timer);
+		SendMessage(WM_DESTROY);
+	}
+	snaky.occupied.push_front(searchingPoint);
+
+	map.unoccupiedNodes.erase(searchingPoint);
+
+	//OCCUPY THEN MOVE///////////////////
+	/*if (searchingPoint != apple) {
+		POINT P;
+		searchingPoint = snaky.occupied.back();
+		map.unoccupiedNodes[searchingPoint] = searchingPoint.y*map.x + searchingPoint.x;
+		snaky.occupied.pop_back();
+	}
+	else {
+		++snaky.length;
+		int appleNode = rand() % map.unoccupiedNodes.size();
+		apple = map.moveIter(appleNode);
+	}*/
+	////////////////////////////////////
 
 	Invalidate();
 
@@ -223,8 +248,34 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	int x = 15, y = 15, wall_size = 20, wall_coundown = 10;
+	int x, y, wall_size, wall_coundown;
+	x = GetPrivateProfileInt(_T("Snake"), _T("Width"), 10, _T("Snake.ini"));
+	y = GetPrivateProfileInt(_T("Snake"), _T("Heigth"), 10, _T("Snake.ini"));
+	wall_size = x + y;
+	wall_coundown = GetPrivateProfileInt(_T("Snake"), _T("Countdown"), 10, _T("Snake.ini"));
+
+	CWallOptionsDlg wallOptions;
 	//UCITAVANJE IZ FILEA!!!!!!  (kako?)
+	wallOptions.x_spaces = x;
+	wallOptions.y_spaces = y;
+	wallOptions.wall_spaces = wall_size;
+	wallOptions.countdown = wall_coundown;
+	wallOptions.DoModal();
+
+	x = wallOptions.x_spaces;
+	y = wallOptions.y_spaces;
+	wall_size = wallOptions.wall_spaces;
+	wall_coundown = wallOptions.countdown;
+
+	WritePrivateProfileString(_T("Snake"), _T("Width"), (LPCWSTR)&x, _T("Snake.ini"));
+	WritePrivateProfileString(_T("Snake"), _T("Heigth"), (LPCWSTR)&y, _T("Snake.ini"));
+	WritePrivateProfileString(_T("Snake"), _T("Countdown"), (LPCWSTR)&wall_coundown, _T("Snake.ini"));
+
+	// izbrisati prozor? wallOptions.
+
+	currentKey = VK_LEFT;
+	previousDirection = 0;
+
 	map.set_size(x, y);
 	snaky.set(&map);
 	wall.set(wall_size, wall_coundown);
@@ -236,4 +287,17 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	timer = SetTimer(timer, 350, NULL);
 
 	return 0;
+}
+
+
+void CChildView::OnDestroy()
+{
+	CWnd::OnDestroy();
+
+	KillTimer(timer);
+	wall.wallClear(&map);
+	wall.initialize.clear();
+	map.unoccupiedNodes.clear();
+
+	SendMessage(WM_CREATE);
 }

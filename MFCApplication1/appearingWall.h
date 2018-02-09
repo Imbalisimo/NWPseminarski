@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include <map>
 #include "grid.h"
-#include "node.h"
 #include "snake.h"
 #include "POINToperators.h"
 

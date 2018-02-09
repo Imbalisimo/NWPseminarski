@@ -4,10 +4,10 @@
 
 
 #pragma once
-#include "node.h"
 #include "snake.h"
 #include "grid.h"
 #include "appearingWall.h"
+#include "WallOptionsDlg.h"
 
 // CChildView window
 
@@ -19,7 +19,7 @@ public:
 	RECT window_size;
 	POINT grid_size;
 	POINT apple;
-	UINT previousDirection, currentKey=VK_LEFT;
+	UINT previousDirection, currentKey;
 	grid map;
 	snake snaky;
 	appearingWall wall;
@@ -46,5 +46,6 @@ public:
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDestroy();
 };
 
