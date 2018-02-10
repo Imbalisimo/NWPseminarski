@@ -12,6 +12,10 @@ void appearingWall::set(int len, int count) {
 	length = len;
 	countReset = count;
 	countdown = countReset;
+	if (countReset <= 3)
+		smallCountreset = true;
+	else
+		smallCountreset = false;
 }
 
 void appearingWall::RdyToappear(grid *map, POINT apple) {

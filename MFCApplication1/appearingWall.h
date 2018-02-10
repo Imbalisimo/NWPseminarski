@@ -11,6 +11,7 @@ public:
 	int length;
 	int countdown;
 	int countReset;
+	bool smallCountreset;
 	std::list<POINT> built;
 	std::list<POINT> initialize;
 	appearingWall();

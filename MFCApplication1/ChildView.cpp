@@ -182,14 +182,16 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 		previousDirection = currentKey;
 	}
 
-	if (wall.countdown < 7)
+	if (wall.countdown < 4)
 	{
-		if (wall.countdown == 3 && map.unoccupiedNodes.size() > 15)
+		if (wall.countdown == -7)
+			wall.wallClear(&map);
+		if (wall.countdown == 3 && map.unoccupiedNodes.size() > 15 && !wall.smallCountreset)
+			wall.RdyToappear(&map, apple);
+		if (wall.countReset <= 3 && wall.countReset == wall.countdown && map.unoccupiedNodes.size() > 15)
 			wall.RdyToappear(&map, apple);
 		if (wall.countdown == 0)
 			wall.onAppearance(&snaky, &map, apple);
-		if (wall.countdown == -7)
-			wall.wallClear(&map);
 	}
 	--wall.countdown;
 
@@ -221,6 +223,7 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 	if (success == 0)
 	{
 		KillTimer(timer);
+		Invalidate();
 		SendMessage(WM_DESTROY);
 	}
 
@@ -255,7 +258,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	wall_coundown = GetPrivateProfileInt(_T("Snake"), _T("Countdown"), 10, _T("Snake.ini"));
 
 	CWallOptionsDlg wallOptions;
-	//UCITAVANJE IZ FILEA!!!!!!  (kako?)
 	wallOptions.x_spaces = x;
 	wallOptions.y_spaces = y;
 	wallOptions.wall_spaces = wall_size;
