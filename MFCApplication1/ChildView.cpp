@@ -186,9 +186,9 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 	{
 		if (wall.countdown == -7)
 			wall.wallClear(&map);
-		if (wall.countdown == 3 && map.unoccupiedNodes.size() > 15 && !wall.smallCountreset)
+		if (wall.countdown == 3 && map.unoccupiedNodes.size() > wall.length+map.x && !wall.smallCountreset)
 			wall.RdyToappear(&map, apple);
-		if (wall.countReset <= 3 && wall.countReset == wall.countdown && map.unoccupiedNodes.size() > 15)
+		if (wall.countReset <= 3 && wall.countReset == wall.countdown && map.unoccupiedNodes.size() > wall.length + map.x)
 			wall.RdyToappear(&map, apple);
 		if (wall.countdown == 0)
 			wall.onAppearance(&snaky, &map, apple);
