@@ -26,7 +26,8 @@ public:
 	int timer=1;
 // Attributes
 public:
-
+	void start(grid *map, snake *snaky, appearingWall *wall);
+	void end(grid *map, snake *snaky, appearingWall *wall);
 // Operations
 public:
 
@@ -46,6 +47,5 @@ public:
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnDestroy();
 };
 

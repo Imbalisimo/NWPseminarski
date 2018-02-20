@@ -13,6 +13,7 @@
 #include "grid.h"
 #include "appearingWall.h"
 #include "WallOptionsDlg.h"
+#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -27,6 +28,56 @@ CRect generate_rect(POINT a, int coefficient_x, int coefficient_y)
 	rect.bottom = rect.top + coefficient_y;
 	rect.right = rect.left + coefficient_x;
 	return rect;
+}
+
+void CChildView::start(grid *map, snake *snaky, appearingWall *wall)
+{
+	int x, y, wall_size, wall_coundown;
+	x = GetPrivateProfileInt(_T("Snake"), _T("Width"), 10, _T("Snake.ini"));
+	y = GetPrivateProfileInt(_T("Snake"), _T("Heigth"), 10, _T("Snake.ini"));
+	wall_size = x + y;
+	wall_coundown = GetPrivateProfileInt(_T("Snake"), _T("Countdown"), 10, _T("Snake.ini"));
+
+	CWallOptionsDlg wallOptions;
+	wallOptions.x_spaces = x;
+	wallOptions.y_spaces = y;
+	wallOptions.wall_spaces = wall_size;
+	wallOptions.countdown = wall_coundown;
+	wallOptions.DoModal();
+
+	x = wallOptions.x_spaces;
+	y = wallOptions.y_spaces;
+	wall_size = wallOptions.wall_spaces;
+	wall_coundown = wallOptions.countdown;
+
+	WritePrivateProfileString(_T("Snake"), _T("Width"), std::to_wstring(x).c_str(), _T("Snake.ini"));
+	WritePrivateProfileString(_T("Snake"), _T("Heigth"), std::to_wstring(y).c_str(), _T("Snake.ini"));
+	WritePrivateProfileString(_T("Snake"), _T("Countdown"), std::to_wstring(wall_coundown).c_str(), _T("Snake.ini"));
+	
+	currentKey = VK_LEFT;
+	previousDirection = 0;
+
+	map->set_size(x, y);
+	snaky->set(map);
+	wall->set(wall_size, wall_coundown);
+	int applePoint = rand() % map->unoccupiedNodes.size();
+	apple.x = 0;
+	apple.y = 0;
+	apple = map->moveIter(applePoint);
+
+	previousDirection = 0;
+
+	timer = SetTimer(timer, 350, NULL);
+}
+
+void CChildView::end(grid *map, snake *snaky, appearingWall *wall)
+{
+	KillTimer(timer);
+	wall->wallClear(map);
+	wall->initialize.clear();
+	map->unoccupiedNodes.clear();
+
+	start(map, snaky, wall);
 }
 
 // CChildView
@@ -45,7 +96,6 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_KEYDOWN()
 	ON_WM_TIMER()
 	ON_WM_CREATE()
-	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -155,7 +205,7 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 			if (previousDirection != VK_DOWN)
 				--searchingPoint.y;
 		break;
-	case VK_DOWN:
+case VK_DOWN:
 		if (searchingPoint.y >= map.y)
 			success = 0;
 		else
@@ -224,7 +274,7 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 	{
 		KillTimer(timer);
 		Invalidate();
-		SendMessage(WM_DESTROY);
+		end(&map, &snaky, &wall);
 	}
 
 	//OCCUPY THEN MOVE///////////////////
@@ -251,57 +301,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	int x, y, wall_size, wall_coundown;
-	x = GetPrivateProfileInt(_T("Snake"), _T("Width"), 10, _T("Snake.ini"));
-	y = GetPrivateProfileInt(_T("Snake"), _T("Heigth"), 10, _T("Snake.ini"));
-	wall_size = x + y;
-	wall_coundown = GetPrivateProfileInt(_T("Snake"), _T("Countdown"), 10, _T("Snake.ini"));
-
-	CWallOptionsDlg wallOptions;
-	wallOptions.x_spaces = x;
-	wallOptions.y_spaces = y;
-	wallOptions.wall_spaces = wall_size;
-	wallOptions.countdown = wall_coundown;
-	wallOptions.DoModal();
-
-	x = wallOptions.x_spaces;
-	y = wallOptions.y_spaces;
-	wall_size = wallOptions.wall_spaces;
-	wall_coundown = wallOptions.countdown;
-
-	WritePrivateProfileString(_T("Snake"), _T("Width"), (LPCWSTR)&x, _T("Snake.ini"));
-	WritePrivateProfileString(_T("Snake"), _T("Heigth"), (LPCWSTR)&y, _T("Snake.ini"));
-	WritePrivateProfileString(_T("Snake"), _T("Countdown"), (LPCWSTR)&wall_coundown, _T("Snake.ini"));
-
-	// izbrisati prozor? wallOptions.
-
-	currentKey = VK_LEFT;
-	previousDirection = 0;
-
-	map.set_size(x, y);
-	snaky.set(&map);
-	wall.set(wall_size, wall_coundown);
-	int applePoint = rand() % map.unoccupiedNodes.size();
-	apple.x = 0;
-	apple.y = 0;
-	apple = map.moveIter(applePoint);
-
-	previousDirection = 0;
-
-	timer = SetTimer(timer, 350, NULL);
-
+	start(&map, &snaky, &wall);
 	return 0;
-}
-
-
-void CChildView::OnDestroy()
-{
-	CWnd::OnDestroy();
-
-	KillTimer(timer);
-	wall.wallClear(&map);
-	wall.initialize.clear();
-	map.unoccupiedNodes.clear();
-
-	SendMessage(WM_CREATE);
 }

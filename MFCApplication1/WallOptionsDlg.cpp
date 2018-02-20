@@ -52,10 +52,8 @@ END_MESSAGE_MAP()
 
 void CWallOptionsDlg::OnEnKillfocusEditSize()
 {
-	if (wall_spaces == 0)
-		enableDisable.EnableWindow(false);
-	else
-		enableDisable.EnableWindow(true);
+	UpdateData();
+	enableDisable.EnableWindow(wall_spaces != 0);
 }
 
 
