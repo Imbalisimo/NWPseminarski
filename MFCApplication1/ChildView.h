@@ -7,6 +7,7 @@
 #include "snake.h"
 #include "grid.h"
 #include "appearingWall.h"
+#include "game.h"
 #include "WallOptionsDlg.h"
 
 // CChildView window
@@ -18,16 +19,13 @@ public:
 	CChildView();
 	RECT window_size;
 	POINT grid_size;
-	POINT apple;
-	UINT previousDirection, currentKey;
-	grid map;
-	snake snaky;
-	appearingWall wall;
+	
+	game gameObj;
 	int timer=1;
 // Attributes
 public:
-	void start(grid *map, snake *snaky, appearingWall *wall);
-	void end(grid *map, snake *snaky, appearingWall *wall);
+	void start();
+	void end();
 // Operations
 public:
 

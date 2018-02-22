@@ -192,6 +192,7 @@
   <ItemGroup>
     <ClInclude Include="appearingWall.h" />
     <ClInclude Include="ChildView.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFCApplication1.h" />
@@ -205,6 +206,7 @@
   <ItemGroup>
     <ClCompile Include="appearingWall.cpp" />
     <ClCompile Include="ChildView.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFCApplication1.cpp" />
