@@ -19,7 +19,7 @@ public:
 	CChildView();
 	RECT window_size;
 	POINT grid_size;
-	
+	bool timerFlag=true;
 	game gameObj;
 	int timer=1;
 // Attributes

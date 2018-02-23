@@ -94,6 +94,9 @@ void CChildView::OnPaint()
 	coefficient_x -= coefficient_x / gameObj.map.x;
 	int coefficient_y=ypix/ gameObj.map.y;
 	coefficient_y -= coefficient_y / gameObj.map.y;
+	CString str = _T("SCORE:");
+	str.Append(std::to_wstring(gameObj.snaky.length - 4).c_str());
+	dc.DrawText(str, &window_size, 0);
 
 	if (gameObj.wall.countdown < 7)
 	{
@@ -149,7 +152,17 @@ void CChildView::OnPaint()
 
 void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	gameObj.moveTo(nChar);
+	if (nChar >= VK_LEFT && nChar <= VK_DOWN)
+		gameObj.moveTo(nChar);
+
+	if (nChar == 0x50) //letter P
+	{
+		if (timerFlag)
+			KillTimer(timer);
+		else
+			timer = SetTimer(timer, 350, NULL);
+		timerFlag = !timerFlag;
+	}
 	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
