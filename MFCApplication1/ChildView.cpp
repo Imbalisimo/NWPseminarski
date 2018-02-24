@@ -33,7 +33,7 @@ CRect generate_rect(POINT a, int coefficient_x, int coefficient_y)
 void CChildView::start()
 {
 	gameObj.start();
-	timer = SetTimer(timer, 350, NULL);
+	timer = SetTimer(timer, gameObj.time, NULL);
 }
 
 void CChildView::end()
@@ -94,9 +94,6 @@ void CChildView::OnPaint()
 	coefficient_x -= coefficient_x / gameObj.map.x;
 	int coefficient_y=ypix/ gameObj.map.y;
 	coefficient_y -= coefficient_y / gameObj.map.y;
-	CString str = _T("SCORE:");
-	str.Append(std::to_wstring(gameObj.snaky.length - 4).c_str());
-	dc.DrawText(str, &window_size, 0);
 
 	if (gameObj.wall.countdown < 7)
 	{
@@ -145,6 +142,10 @@ void CChildView::OnPaint()
 	apple_s.CreateSolidBrush(RGB(255, 0, 0));
 	dc.SelectObject(apple_s);
 	dc.Ellipse(generate_rect(gameObj.apple, coefficient_x, coefficient_y));
+
+	CString str = _T("SCORE:");
+	str.Append(std::to_wstring(gameObj.snaky.length - 5).c_str());
+	dc.DrawText(str, &window_size, 0);
 	// Do not call CWnd::OnPaint() for painting messages
 }
 
@@ -160,7 +161,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		if (timerFlag)
 			KillTimer(timer);
 		else
-			timer = SetTimer(timer, 350, NULL);
+			timer = SetTimer(timer, gameObj.time, NULL);
 		timerFlag = !timerFlag;
 	}
 	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);

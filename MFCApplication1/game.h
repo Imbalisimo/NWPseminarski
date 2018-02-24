@@ -12,6 +12,7 @@ public:
 	grid map;
 	snake snaky;
 	appearingWall wall;
+	int time;
 
 	void start();
 	void moveTo(UINT key);

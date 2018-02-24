@@ -12,6 +12,7 @@ void game::start()
 	y = GetPrivateProfileInt(section, _T("Heigth"), 10, filename);
 	wall_size = x + y;
 	wall_coundown = GetPrivateProfileInt(section, _T("Countdown"), 10, filename);
+	time = GetPrivateProfileInt(section, _T("Speed"), 350, filename);
 
 	CWallOptionsDlg wallOptions;
 	wallOptions.x_spaces = x;
@@ -136,6 +137,13 @@ bool game::move()
 	snaky.occupied.push_front(searchingPoint);
 
 	map.unoccupiedNodes.erase(searchingPoint);
+
+	if (snaky.occupied.front() == apple)  //snake goes 2 spaces??
+	{
+		++snaky.length;
+		int appleNode = rand() % map.unoccupiedNodes.size();
+		apple = map.moveIter(appleNode);
+	}
 
 	//OCCUPY THEN MOVE///////////////////
 	/*if (searchingPoint != apple) {
