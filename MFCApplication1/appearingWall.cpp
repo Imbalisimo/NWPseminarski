@@ -19,7 +19,7 @@ void appearingWall::set(int len, int count) {
 }
 
 void appearingWall::RdyToappear(grid *map, POINT apple) {
-	if (map->unoccupiedNodes.size() > length + map->x)
+	if (map->unoccupiedNodes.size() > length + map->x && length > 0)
 	{
 		POINT p;
 		POINT map_s;
