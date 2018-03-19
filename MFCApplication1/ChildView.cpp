@@ -5,15 +5,10 @@
 #include "stdafx.h"
 #include "MFCApplication1.h"
 #include "ChildView.h"
-#include <map>
-#include <list>
-#include <vector>
-#include <iterator>
 #include "snake.h"
 #include "grid.h"
 #include "appearingWall.h"
 #include "WallOptionsDlg.h"
-#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -84,26 +79,26 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 void CChildView::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
+	RECT window_size;
 	GetClientRect(&window_size);
 	int ypix = 400, xpix = 400;
 	dc.SetMapMode(MM_ANISOTROPIC);
 	dc.SetViewportExt(window_size.right, window_size.bottom);
 	dc.SetWindowExt(xpix, ypix);
 
-	int coefficient_x=xpix/ gameObj.map.x;
-	coefficient_x -= coefficient_x / gameObj.map.x;
-	int coefficient_y=ypix/ gameObj.map.y;
-	coefficient_y -= coefficient_y / gameObj.map.y;
+	
+	int coefficient_x = xpix / gameObj.map.x;
+	int coefficient_y = ypix / gameObj.map.y;
 
-	if (gameObj.wall.countdown < 7)
+	if (gameObj.wall.countdown < gameObj.wall.duration)
 	{
 		CPen wallPen;
 		CBrush wall_s;
 		if (gameObj.wall.countdown < 0)
 		{
-			wall_s.CreateSolidBrush(RGB(128, 64, 0));
+			wall_s.CreateSolidBrush(gameObj.wall.color_rdy);
 			dc.SelectObject(wall_s);
-			wallPen.CreatePen(1, 1, RGB(128, 64, 0));
+			wallPen.CreatePen(1, 1, gameObj.wall.color_rdy);
 			dc.SelectObject(wallPen);
 
 			for (POINT var : gameObj.wall.built)
@@ -113,9 +108,9 @@ void CChildView::OnPaint()
 		}
 		else
 		{
-			wall_s.CreateSolidBrush(RGB(255, 166, 77));
+			wall_s.CreateSolidBrush(gameObj.wall.color_built);
 			dc.SelectObject(wall_s);
-			wallPen.CreatePen(1, 1, RGB(255, 166, 77));
+			wallPen.CreatePen(1, 1, gameObj.wall.color_built);
 			dc.SelectObject(wallPen);
 
 			for (POINT var : gameObj.wall.initialize)
@@ -126,26 +121,29 @@ void CChildView::OnPaint()
 	}
 
 	CBrush innerBrush;
-	innerBrush.CreateSolidBrush(RGB(0, 0, 0));
+	innerBrush.CreateSolidBrush(gameObj.snaky.color_inner);
 	dc.SelectObject(innerBrush);
 	CPen pen;
-	pen.CreatePen(PS_NULL, 1, RGB(255, 255, 255));
+	pen.CreatePen(PS_NULL, 1, gameObj.snaky.color_frame);
 	dc.SelectObject(pen);
 
-	for(POINT var : gameObj.snaky.occupied)
+	for (POINT var : gameObj.snaky.occupied)
 	{
 		dc.Rectangle(generate_rect(var, coefficient_x, coefficient_y));
 	}
 
 	dc.SelectObject(pen);
 	CBrush apple_s;
-	apple_s.CreateSolidBrush(RGB(255, 0, 0));
+	apple_s.CreateSolidBrush(gameObj.color_apple);
 	dc.SelectObject(apple_s);
 	dc.Ellipse(generate_rect(gameObj.apple, coefficient_x, coefficient_y));
 
-	CString str = _T("SCORE:");
-	str.Append(std::to_wstring(gameObj.snaky.length - 5).c_str());
+	CString str;
+	str.LoadStringW(IDS_STRING101);
+	str.Append(_T(":"));
+	str.Append(std::to_wstring(gameObj.snaky.length - gameObj.snaky.startLength).c_str());
 	dc.DrawText(str, &window_size, 0);
+	
 	// Do not call CWnd::OnPaint() for painting messages
 }
 

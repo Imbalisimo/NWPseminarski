@@ -10,12 +10,12 @@ snake::snake()
 void snake::set(grid *map)
 {
 	occupied.clear();
-	length = 5;
+	length = startLength;
 	POINT startingPoints;
 	startingPoints.x = map->x / 2;
 	startingPoints.y = map->y / 2;
 
-	for (int i = 0;i < 4;++i)
+	for (int i = 1;i < startLength;++i)
 	{
 		++startingPoints.x;
 		occupied.push_back(startingPoints);

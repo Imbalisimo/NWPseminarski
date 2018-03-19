@@ -17,8 +17,6 @@ class CChildView : public CWnd
 // Construction
 public:
 	CChildView();
-	RECT window_size;
-	POINT grid_size;
 	game gameObj;
 	bool timerFlag=true;
 	int timer=1;

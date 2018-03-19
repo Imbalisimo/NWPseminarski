@@ -1,7 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-#include <map>
 #include "grid.h"
 #include "snake.h"
 #include "POINToperators.h"
@@ -12,6 +10,8 @@ public:
 	int countdown;
 	int countReset;
 	bool smallCountreset;
+	int duration, buildingTime;
+	COLORREF color_rdy, color_built;
 	std::list<POINT> built;
 	std::list<POINT> initialize;
 	appearingWall();

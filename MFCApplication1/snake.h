@@ -1,12 +1,12 @@
 #pragma once
-#include <list>
+
 #include "grid.h"
 
 class snake {
 public:
-	int length;
+	int length, startLength;
+	COLORREF color_frame, color_inner;
 	std::list<POINT> occupied;
 	snake();
 	void set(grid *map);
-	//bool move(grid *map, appearingWall *wall, UINT previousDirection, UINT currentKey, POINT apple);
 };

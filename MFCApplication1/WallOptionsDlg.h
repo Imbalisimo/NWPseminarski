@@ -28,5 +28,5 @@ public:
 	UINT countdown;
 	CEdit enableDisable;
 	afx_msg void OnEnKillfocusEditSize();
-	afx_msg void OnBnClickedCancel();
+	afx_msg void OnBnClickedExit();
 };

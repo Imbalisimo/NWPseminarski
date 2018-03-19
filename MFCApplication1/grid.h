@@ -1,7 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-#include <map>
 #include "POINToperators.h"
 
 class grid {

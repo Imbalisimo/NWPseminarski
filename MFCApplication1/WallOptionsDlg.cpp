@@ -42,7 +42,7 @@ void CWallOptionsDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CWallOptionsDlg, CDialog)
 	ON_EN_KILLFOCUS(IDC_EDIT_SIZE, &CWallOptionsDlg::OnEnKillfocusEditSize)
-	ON_BN_CLICKED(IDCANCEL, &CWallOptionsDlg::OnBnClickedCancel)
+	ON_BN_CLICKED(IDCANCEL, &CWallOptionsDlg::OnBnClickedExit)
 END_MESSAGE_MAP()
 
 
@@ -57,8 +57,8 @@ void CWallOptionsDlg::OnEnKillfocusEditSize()
 }
 
 
-void CWallOptionsDlg::OnBnClickedCancel()
+void CWallOptionsDlg::OnBnClickedExit()
 {
-	exit(0);
+	PostQuitMessage(0);
 	CDialog::OnCancel();
 }

@@ -1,18 +1,71 @@
 #include "stdafx.h"
 #include "game.h"
-#include <string>
 
 void game::start()
 {
-	const TCHAR* section = _T("Snake");
 	const TCHAR* filename = _T(".\\Snake.ini");
 
-	int x, y, wall_size, wall_coundown;
+	int x, y;
+	int wall_size, wall_coundown;
+	int r, g, b;
+
+	TCHAR* section = _T("Snake");
+	r = GetPrivateProfileInt(section, _T("FR"), 255, filename);
+	g = GetPrivateProfileInt(section, _T("FG"), 255, filename);
+	b = GetPrivateProfileInt(section, _T("FB"), 255, filename);
+	snaky.color_frame = RGB(r, g, b);
+	WritePrivateProfileString(section, _T("FR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("FG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("FB"), std::to_wstring(b).c_str(), filename);
+
+	r = GetPrivateProfileInt(section, _T("IR"), 0, filename);
+	g = GetPrivateProfileInt(section, _T("IG"), 0, filename);
+	b = GetPrivateProfileInt(section, _T("IB"), 0, filename);
+	snaky.color_inner = RGB(r, g, b);
+	WritePrivateProfileString(section, _T("IR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("IG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("IB"), std::to_wstring(b).c_str(), filename);
+
+	snaky.startLength = GetPrivateProfileInt(section, _T("StartLength"), 4, filename);
+	WritePrivateProfileString(section, _T("StartLength"), std::to_wstring(snaky.startLength).c_str(), filename);
+	time = GetPrivateProfileInt(section, _T("Speed"), 350, filename);
+	WritePrivateProfileString(section, _T("Speed"), std::to_wstring(time).c_str(), filename);
+
+	section = _T("Wall");
 	x = GetPrivateProfileInt(section, _T("Width"), 10, filename);
 	y = GetPrivateProfileInt(section, _T("Heigth"), 10, filename);
 	wall_size = x + y;
 	wall_coundown = GetPrivateProfileInt(section, _T("Countdown"), 10, filename);
-	time = GetPrivateProfileInt(section, _T("Speed"), 350, filename);
+	wall.duration = GetPrivateProfileInt(section, _T("Duration"), 7, filename);
+	wall.buildingTime = GetPrivateProfileInt(section, _T("BuildingTime"), 3, filename);
+
+	WritePrivateProfileString(section, _T("BuildingTime"), std::to_wstring(wall.buildingTime).c_str(), filename);
+	WritePrivateProfileString(section, _T("Duration"), std::to_wstring(wall.duration).c_str(), filename);
+
+	r = GetPrivateProfileInt(section, _T("RR"), 128, filename);
+	g = GetPrivateProfileInt(section, _T("RG"), 64, filename);
+	b = GetPrivateProfileInt(section, _T("RB"), 0, filename);
+	wall.color_rdy = RGB(r, g, b);
+	WritePrivateProfileString(section, _T("RR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("RG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("RB"), std::to_wstring(b).c_str(), filename);
+
+	r = GetPrivateProfileInt(section, _T("BR"), 255, filename);
+	g = GetPrivateProfileInt(section, _T("BG"), 166, filename);
+	b = GetPrivateProfileInt(section, _T("BB"), 77, filename);
+	wall.color_built = RGB(r, g, b);
+	WritePrivateProfileString(section, _T("BR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("BG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("BB"), std::to_wstring(b).c_str(), filename);
+
+	section = _T("Apple");
+	r = GetPrivateProfileInt(section, _T("R"), 255, filename);
+	g = GetPrivateProfileInt(section, _T("G"), 0, filename);
+	b = GetPrivateProfileInt(section, _T("B"), 0, filename);
+	color_apple = RGB(r, g, b);
+	WritePrivateProfileString(section, _T("R"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("G"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("B"), std::to_wstring(b).c_str(), filename);
 
 	CWallOptionsDlg wallOptions;
 	wallOptions.x_spaces = x;
@@ -26,6 +79,7 @@ void game::start()
 	wall_size = wallOptions.wall_spaces;
 	wall_coundown = wallOptions.countdown;
 
+	section = _T("Wall");
 	WritePrivateProfileString(section, _T("Width"), std::to_wstring(x).c_str(), filename);
 	WritePrivateProfileString(section, _T("Heigth"), std::to_wstring(y).c_str(), filename);
 	WritePrivateProfileString(section, _T("Countdown"), std::to_wstring(wall_coundown).c_str(), filename);
@@ -51,7 +105,6 @@ void game::end()
 	map.unoccupiedNodes.clear();
 }
 
-//NEMA TIMERA, NEMA POZIVANJA START IZ END, TO OSTAVITI U CHILDVIEW
 
 void game::moveTo(UINT key)
 {
@@ -60,39 +113,39 @@ void game::moveTo(UINT key)
 
 bool game::move()
 {
-	int success = 1;
+	bool success = true;
 	POINT searchingPoint = snaky.occupied.front();
 	if (previousDirection + 2 == currentKey || previousDirection - 2 == currentKey)
 		currentKey = previousDirection;
 	switch (currentKey)
 	{
 	case VK_UP:
-		if (searchingPoint.y <= 0)
-			success = 0;
-		else
-			if (previousDirection != VK_DOWN)
-				--searchingPoint.y;
+		if (previousDirection != VK_DOWN)
+			--searchingPoint.y;
+
+		if (searchingPoint.y < 0)
+			success = false;
 		break;
 	case VK_DOWN:
+		if (previousDirection != VK_UP)
+			++searchingPoint.y;
+
 		if (searchingPoint.y >= map.y)
-			success = 0;
-		else
-			if (previousDirection != VK_UP)
-				++searchingPoint.y;
+			success = false;
 		break;
 	case VK_LEFT:
-		if (searchingPoint.x <= 0)
-			success = 0;
-		else
-			if (previousDirection != VK_RIGHT)
-				--searchingPoint.x;
+		if (previousDirection != VK_RIGHT)
+			--searchingPoint.x;
+
+		if (searchingPoint.x < 0)
+			success = false;
 		break;
 	case VK_RIGHT:
+		if (previousDirection != VK_LEFT)
+			++searchingPoint.x;
+
 		if (searchingPoint.x >= map.x)
-			success = 0;
-		else
-			if (previousDirection != VK_LEFT)
-				++searchingPoint.x;
+			success = false;
 		break;
 	}
 
@@ -100,13 +153,13 @@ bool game::move()
 		previousDirection = currentKey;
 	}
 
-	if (wall.countdown < 4)
+	if (wall.countdown < wall.buildingTime+1)
 	{
-		if (wall.countdown == -7)
+		if (wall.countdown == -wall.duration)
 			wall.wallClear(&map);
-		if (wall.countdown == 3 && map.unoccupiedNodes.size() > wall.length + map.x && !wall.smallCountreset)
+		if (wall.countdown == wall.buildingTime && map.unoccupiedNodes.size() > wall.length + map.x && !wall.smallCountreset)
 			wall.RdyToappear(&map, apple);
-		if (wall.countReset <= 3 && wall.countReset == wall.countdown && map.unoccupiedNodes.size() > wall.length + map.x)
+		if (wall.countReset <= wall.buildingTime && wall.countReset == wall.countdown && map.unoccupiedNodes.size() > wall.length + map.x)
 			wall.RdyToappear(&map, apple);
 		if (wall.countdown == 0)
 			wall.onAppearance(&snaky, &map, apple);
@@ -129,34 +182,27 @@ bool game::move()
 	//game over or not?
 	for (POINT var : snaky.occupied)
 		if (var == searchingPoint)
-			success = 0;
+			success = false;
 	for (POINT var : wall.built)
 		if (var == searchingPoint)
-			success = 0;
+			success = false;
 
 	snaky.occupied.push_front(searchingPoint);
 
 	map.unoccupiedNodes.erase(searchingPoint);
-
+	
 	if (snaky.occupied.front() == apple)  //snake goes 2 spaces??
 	{
 		++snaky.length;
-		int appleNode = rand() % map.unoccupiedNodes.size();
-		apple = map.moveIter(appleNode);
+		if (map.unoccupiedNodes.size() != 0)
+		{
+			int appleNode = rand() % map.unoccupiedNodes.size();
+			apple = map.moveIter(appleNode);
+		}
+
 	}
 
 	//OCCUPY THEN MOVE///////////////////
-	/*if (searchingPoint != apple) {
-	searchingPoint = snaky.occupied.back();
-	map.unoccupiedNodes[searchingPoint] = searchingPoint.y*map.x + searchingPoint.x;
-	snaky.occupied.pop_back();
-	}
-	else {
-	++snaky.length;
-	int appleNode = rand() % map.unoccupiedNodes.size();
-	apple = map.moveIter(appleNode);
-	}*/
-	////////////////////////////////////
 
-	return success == 1;
+	return success;
 }

@@ -1,6 +1,5 @@
 
 #include "stdafx.h"
-#include <map>
 #include "grid.h"
 #include "snake.h"
 #include "appearingWall.h"
@@ -42,12 +41,12 @@ void appearingWall::RdyToappear(grid *map, POINT apple) {
 				++map_s.y;
 			case 1:
 				++map_s.x;
-				if (map_s.x <= map->x)
+				if (map_s.x < map->x)
 					break;
 				--map_s.x;
 			case 2:
 				++map_s.y;
-				if (map_s.y <= map->y)
+				if (map_s.y < map->y)
 					break;
 				--map_s.y;
 			case 3:

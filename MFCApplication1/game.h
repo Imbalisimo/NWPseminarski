@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+
 #include "grid.h"
 #include "snake.h"
 #include "appearingWall.h"
@@ -8,6 +8,7 @@
 class game {
 public:
 	POINT apple;
+	COLORREF color_apple;
 	UINT previousDirection, currentKey;
 	grid map;
 	snake snaky;
