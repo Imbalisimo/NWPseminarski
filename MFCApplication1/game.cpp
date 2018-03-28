@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "game.h"
 
-void game::start()
+void game::getColors() 
 {
 	const TCHAR* filename = _T(".\\Snake.ini");
 
-	int x, y;
-	int wall_size, wall_coundown;
 	int r, g, b;
 
 	TCHAR* section = _T("Snake");
@@ -25,22 +23,6 @@ void game::start()
 	WritePrivateProfileString(section, _T("IR"), std::to_wstring(r).c_str(), filename);
 	WritePrivateProfileString(section, _T("IG"), std::to_wstring(g).c_str(), filename);
 	WritePrivateProfileString(section, _T("IB"), std::to_wstring(b).c_str(), filename);
-
-	snaky.startLength = GetPrivateProfileInt(section, _T("StartLength"), 4, filename);
-	WritePrivateProfileString(section, _T("StartLength"), std::to_wstring(snaky.startLength).c_str(), filename);
-	time = GetPrivateProfileInt(section, _T("Speed"), 350, filename);
-	WritePrivateProfileString(section, _T("Speed"), std::to_wstring(time).c_str(), filename);
-
-	section = _T("Wall");
-	x = GetPrivateProfileInt(section, _T("Width"), 10, filename);
-	y = GetPrivateProfileInt(section, _T("Heigth"), 10, filename);
-	wall_size = x + y;
-	wall_coundown = GetPrivateProfileInt(section, _T("Countdown"), 10, filename);
-	wall.duration = GetPrivateProfileInt(section, _T("Duration"), 7, filename);
-	wall.buildingTime = GetPrivateProfileInt(section, _T("BuildingTime"), 3, filename);
-
-	WritePrivateProfileString(section, _T("BuildingTime"), std::to_wstring(wall.buildingTime).c_str(), filename);
-	WritePrivateProfileString(section, _T("Duration"), std::to_wstring(wall.duration).c_str(), filename);
 
 	r = GetPrivateProfileInt(section, _T("RR"), 128, filename);
 	g = GetPrivateProfileInt(section, _T("RG"), 64, filename);
@@ -66,6 +48,33 @@ void game::start()
 	WritePrivateProfileString(section, _T("R"), std::to_wstring(r).c_str(), filename);
 	WritePrivateProfileString(section, _T("G"), std::to_wstring(g).c_str(), filename);
 	WritePrivateProfileString(section, _T("B"), std::to_wstring(b).c_str(), filename);
+}
+
+void game::start()
+{
+	const TCHAR* filename = _T(".\\Snake.ini");
+
+	getColors();
+
+	int x, y;
+	int wall_size, wall_coundown;
+
+	TCHAR* section = _T("Snake");
+	snaky.startLength = GetPrivateProfileInt(section, _T("StartLength"), 4, filename);
+	WritePrivateProfileString(section, _T("StartLength"), std::to_wstring(snaky.startLength).c_str(), filename);
+	time = GetPrivateProfileInt(section, _T("Speed"), 350, filename);
+	WritePrivateProfileString(section, _T("Speed"), std::to_wstring(time).c_str(), filename);
+
+	section = _T("Wall");
+	x = GetPrivateProfileInt(section, _T("Width"), 10, filename);
+	y = GetPrivateProfileInt(section, _T("Heigth"), 10, filename);
+	wall_size = x + y;
+	wall_coundown = GetPrivateProfileInt(section, _T("Countdown"), 10, filename);
+	wall.duration = GetPrivateProfileInt(section, _T("Duration"), 7, filename);
+	wall.buildingTime = GetPrivateProfileInt(section, _T("BuildingTime"), 3, filename);
+
+	WritePrivateProfileString(section, _T("BuildingTime"), std::to_wstring(wall.buildingTime).c_str(), filename);
+	WritePrivateProfileString(section, _T("Duration"), std::to_wstring(wall.duration).c_str(), filename);
 
 	CWallOptionsDlg wallOptions;
 	wallOptions.x_spaces = x;
@@ -205,4 +214,21 @@ bool game::move()
 	//OCCUPY THEN MOVE///////////////////
 
 	return success;
+}
+
+void game::drawApple(CPaintDC* dc, int coefficient_x, int coefficient_y)
+{
+	CBrush apple_s;
+	apple_s.CreateSolidBrush(color_apple);
+	dc->SelectObject(apple_s);
+	dc->Ellipse(generate_rect(apple, coefficient_x, coefficient_y));
+}
+
+void game::drawScore(CPaintDC* dc, CRect window_size)
+{
+	CString str;
+	str.LoadStringW(IDS_STRING101);
+	str.Append(_T(":"));
+	str.Append(std::to_wstring(snaky.length - snaky.startLength).c_str());
+	dc->DrawText(str, &window_size, 0);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "POINToperators.h"
+#include "RectGenerator.h"
 
 class grid {
 public:

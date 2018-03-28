@@ -26,3 +26,18 @@ void snake::set(grid *map)
 	occupied.push_back(startingPoints);
 	map->unoccupiedNodes.erase(startingPoints);
 }
+
+void snake::drawSnake(CPaintDC* dc, int coefficient_x, int coefficient_y)
+{
+	CBrush innerBrush;
+	innerBrush.CreateSolidBrush(color_inner);
+	dc->SelectObject(innerBrush);
+	CPen pen;
+	pen.CreatePen(PS_NULL, 1, color_frame);
+	dc->SelectObject(pen);
+
+	for (POINT var : occupied)
+	{
+		dc->Rectangle(generate_rect(var, coefficient_x, coefficient_y));
+	}
+}

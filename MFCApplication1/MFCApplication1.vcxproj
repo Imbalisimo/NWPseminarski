@@ -197,6 +197,7 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFCApplication1.h" />
     <ClInclude Include="POINToperators.h" />
+    <ClInclude Include="RectGenerator.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="snake.h" />
     <ClInclude Include="stdafx.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFCApplication1.cpp" />
     <ClCompile Include="POINToperators.cpp" />
+    <ClCompile Include="RectGenerator.cpp" />
     <ClCompile Include="Snake.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

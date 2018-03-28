@@ -87,3 +87,36 @@ void appearingWall::wallClear(grid* map) {
 	built.clear();
 	countdown = countReset;
 }
+
+void appearingWall::drawWall(CPaintDC* dc, int coefficient_x, int coefficient_y)
+{
+	if (countdown < duration)
+	{
+		CPen wallPen;
+		CBrush wall_s;
+		if (countdown < 0)
+		{
+			wall_s.CreateSolidBrush(color_rdy);
+			dc->SelectObject(wall_s);
+			wallPen.CreatePen(1, 1, color_rdy);
+			dc->SelectObject(wallPen);
+
+			for (POINT var : built)
+			{
+				dc->Rectangle(generate_rect(var, coefficient_x, coefficient_y));
+			}
+		}
+		else
+		{
+			wall_s.CreateSolidBrush(color_built);
+			dc->SelectObject(wall_s);
+			wallPen.CreatePen(1, 1, color_built);
+			dc->SelectObject(wallPen);
+
+			for (POINT var : initialize)
+			{
+				dc->Rectangle(generate_rect(var, coefficient_x, coefficient_y));
+			}
+		}
+	}
+}
