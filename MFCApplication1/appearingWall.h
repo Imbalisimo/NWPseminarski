@@ -22,5 +22,5 @@ public:
 	void onAppearance(snake *snaky, grid* map, POINT apple);
 	void wallClear(grid* map);
 
-	void drawWall(CPaintDC* dc, int coefficient_x, int coefficient_y);
+	void drawWall(CDC* dc, int coefficient_x, int coefficient_y);
 };

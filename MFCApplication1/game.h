@@ -21,8 +21,9 @@ public:
 	bool move();
 	void end();
 
-	void drawApple(CPaintDC* dc, int coefficient_x, int coefficient_y);
-	void drawScore(CPaintDC* dc, CRect window_size);
+	void drawApple(CDC* dc, int coefficient_x, int coefficient_y);
+	void drawScore(CDC* dc, CRect window_size);
 private:
 	void getColors();
+	void writeColors();
 };

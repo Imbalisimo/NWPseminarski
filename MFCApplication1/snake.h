@@ -10,5 +10,5 @@ public:
 
 	snake();
 	void set(grid *map);
-	void drawSnake(CPaintDC* dc, int coefficient_x, int coefficient_y);
+	void drawSnake(CDC* dc, int coefficient_x, int coefficient_y);
 };

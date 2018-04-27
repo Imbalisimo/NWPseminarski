@@ -88,7 +88,7 @@ void appearingWall::wallClear(grid* map) {
 	countdown = countReset;
 }
 
-void appearingWall::drawWall(CPaintDC* dc, int coefficient_x, int coefficient_y)
+void appearingWall::drawWall(CDC* dc, int coefficient_x, int coefficient_y)
 {
 	if (countdown < duration)
 	{

@@ -12,39 +12,75 @@ void game::getColors()
 	g = GetPrivateProfileInt(section, _T("FG"), 255, filename);
 	b = GetPrivateProfileInt(section, _T("FB"), 255, filename);
 	snaky.color_frame = RGB(r, g, b);
-	WritePrivateProfileString(section, _T("FR"), std::to_wstring(r).c_str(), filename);
-	WritePrivateProfileString(section, _T("FG"), std::to_wstring(g).c_str(), filename);
-	WritePrivateProfileString(section, _T("FB"), std::to_wstring(b).c_str(), filename);
 
 	r = GetPrivateProfileInt(section, _T("IR"), 0, filename);
 	g = GetPrivateProfileInt(section, _T("IG"), 0, filename);
 	b = GetPrivateProfileInt(section, _T("IB"), 0, filename);
 	snaky.color_inner = RGB(r, g, b);
-	WritePrivateProfileString(section, _T("IR"), std::to_wstring(r).c_str(), filename);
-	WritePrivateProfileString(section, _T("IG"), std::to_wstring(g).c_str(), filename);
-	WritePrivateProfileString(section, _T("IB"), std::to_wstring(b).c_str(), filename);
+
+	section = _T("Wall");
 
 	r = GetPrivateProfileInt(section, _T("RR"), 128, filename);
 	g = GetPrivateProfileInt(section, _T("RG"), 64, filename);
 	b = GetPrivateProfileInt(section, _T("RB"), 0, filename);
 	wall.color_rdy = RGB(r, g, b);
-	WritePrivateProfileString(section, _T("RR"), std::to_wstring(r).c_str(), filename);
-	WritePrivateProfileString(section, _T("RG"), std::to_wstring(g).c_str(), filename);
-	WritePrivateProfileString(section, _T("RB"), std::to_wstring(b).c_str(), filename);
 
 	r = GetPrivateProfileInt(section, _T("BR"), 255, filename);
 	g = GetPrivateProfileInt(section, _T("BG"), 166, filename);
 	b = GetPrivateProfileInt(section, _T("BB"), 77, filename);
 	wall.color_built = RGB(r, g, b);
-	WritePrivateProfileString(section, _T("BR"), std::to_wstring(r).c_str(), filename);
-	WritePrivateProfileString(section, _T("BG"), std::to_wstring(g).c_str(), filename);
-	WritePrivateProfileString(section, _T("BB"), std::to_wstring(b).c_str(), filename);
 
 	section = _T("Apple");
 	r = GetPrivateProfileInt(section, _T("R"), 255, filename);
 	g = GetPrivateProfileInt(section, _T("G"), 0, filename);
 	b = GetPrivateProfileInt(section, _T("B"), 0, filename);
 	color_apple = RGB(r, g, b);
+}
+
+void game::writeColors() 
+{
+	const TCHAR* filename = _T(".\\Snake.ini");
+
+	int r, g, b;
+
+	TCHAR* section = _T("Snake");
+
+	r = GetRValue(snaky.color_frame);
+	g = GetGValue(snaky.color_frame);
+	b = GetBValue(snaky.color_frame);
+	WritePrivateProfileString(section, _T("FR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("FG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("FB"), std::to_wstring(b).c_str(), filename);
+
+	r = GetRValue(snaky.color_inner);
+	g = GetGValue(snaky.color_inner);
+	b = GetBValue(snaky.color_inner);
+	WritePrivateProfileString(section, _T("IR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("IG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("IB"), std::to_wstring(b).c_str(), filename);
+
+	section = _T("Wall");
+
+	r = GetRValue(wall.color_rdy);
+	g = GetGValue(wall.color_rdy);
+	b = GetBValue(wall.color_rdy);
+	WritePrivateProfileString(section, _T("RR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("RG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("RB"), std::to_wstring(b).c_str(), filename);
+
+	wall.color_built = RGB(r, g, b);
+	r = GetRValue(wall.color_built);
+	g = GetGValue(wall.color_built);
+	b = GetBValue(wall.color_built);
+	WritePrivateProfileString(section, _T("BR"), std::to_wstring(r).c_str(), filename);
+	WritePrivateProfileString(section, _T("BG"), std::to_wstring(g).c_str(), filename);
+	WritePrivateProfileString(section, _T("BB"), std::to_wstring(b).c_str(), filename);
+
+	section = _T("Apple");
+
+	r = GetRValue(color_apple);
+	g = GetGValue(color_apple);
+	b = GetBValue(color_apple);
 	WritePrivateProfileString(section, _T("R"), std::to_wstring(r).c_str(), filename);
 	WritePrivateProfileString(section, _T("G"), std::to_wstring(g).c_str(), filename);
 	WritePrivateProfileString(section, _T("B"), std::to_wstring(b).c_str(), filename);
@@ -109,6 +145,7 @@ void game::start()
 
 void game::end()
 {
+	writeColors();
 	wall.wallClear(&map);
 	wall.initialize.clear();
 	map.unoccupiedNodes.clear();
@@ -216,7 +253,7 @@ bool game::move()
 	return success;
 }
 
-void game::drawApple(CPaintDC* dc, int coefficient_x, int coefficient_y)
+void game::drawApple(CDC* dc, int coefficient_x, int coefficient_y)
 {
 	CBrush apple_s;
 	apple_s.CreateSolidBrush(color_apple);
@@ -224,10 +261,10 @@ void game::drawApple(CPaintDC* dc, int coefficient_x, int coefficient_y)
 	dc->Ellipse(generate_rect(apple, coefficient_x, coefficient_y));
 }
 
-void game::drawScore(CPaintDC* dc, CRect window_size)
+void game::drawScore(CDC* dc, CRect window_size)
 {
 	CString str;
-	str.LoadStringW(IDS_STRING101);
+	str.LoadStringW(101);
 	str.Append(_T(":"));
 	str.Append(std::to_wstring(snaky.length - snaky.startLength).c_str());
 	dc->DrawText(str, &window_size, 0);

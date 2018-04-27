@@ -27,7 +27,7 @@ void snake::set(grid *map)
 	map->unoccupiedNodes.erase(startingPoints);
 }
 
-void snake::drawSnake(CPaintDC* dc, int coefficient_x, int coefficient_y)
+void snake::drawSnake(CDC* dc, int coefficient_x, int coefficient_y)
 {
 	CBrush innerBrush;
 	innerBrush.CreateSolidBrush(color_inner);
