@@ -68,7 +68,6 @@ void game::writeColors()
 	WritePrivateProfileString(section, _T("RG"), std::to_wstring(g).c_str(), filename);
 	WritePrivateProfileString(section, _T("RB"), std::to_wstring(b).c_str(), filename);
 
-	wall.color_built = RGB(r, g, b);
 	r = GetRValue(wall.color_built);
 	g = GetGValue(wall.color_built);
 	b = GetBValue(wall.color_built);
@@ -264,7 +263,7 @@ void game::drawApple(CDC* dc, int coefficient_x, int coefficient_y)
 void game::drawScore(CDC* dc, CRect window_size)
 {
 	CString str;
-	str.LoadStringW(101);
+	str.LoadString(IDS_STRING101);
 	str.Append(_T(":"));
 	str.Append(std::to_wstring(snaky.length - snaky.startLength).c_str());
 	dc->DrawText(str, &window_size, 0);
